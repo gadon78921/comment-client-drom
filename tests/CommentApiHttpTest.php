@@ -86,7 +86,7 @@ class CommentApiHttpTest extends KernelTestCase
         $comment->setText('Comment_text');
 
         $mockApiResponse = [
-            new MockResponse(json_encode(['id' => 5]), ['http_code' => 200]),
+            new MockResponse(json_encode(['id' => 5]), ['http_code' => 201]),
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
@@ -111,5 +111,41 @@ class CommentApiHttpTest extends KernelTestCase
 
         $this->expectException(ServerExceptionInterface::class);
         $commentApiHttp->add($comment);
+    }
+
+    public function testUpdate()
+    {
+        $comment = new Comment();
+        $comment->setId(5);
+        $comment->setName('Ivan');
+        $comment->setText('Comment_text');
+
+        $mockApiResponse = [
+            new MockResponse('', ['http_code' => 204]),
+        ];
+        $mockHttpClient = new MockHttpClient($mockApiResponse);
+
+        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+        $response       = $commentApiHttp->update($comment);
+
+        $this->assertEquals(204, $response['statusCode']);
+    }
+
+    public function testUpdateException()
+    {
+        $comment = new Comment();
+        $comment->setId(5);
+        $comment->setName('Ivan');
+        $comment->setText('Comment_text');
+
+        $mockApiResponse = [
+            new MockResponse('', ['http_code' => 500]),
+        ];
+        $mockHttpClient = new MockHttpClient($mockApiResponse);
+
+        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+
+        $this->expectException(ServerExceptionInterface::class);
+        $commentApiHttp->update($comment);
     }
 }

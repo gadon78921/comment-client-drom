@@ -29,7 +29,7 @@ class CommentApiHttp
         return $response->toArray();
     }
 
-    public function add(Comment $comment)
+    public function add(Comment $comment): int
     {
         $response = $this->httpClient->request('POST', $this->commentsServiceHost . '/comment', [
             'headers' => [
@@ -46,8 +46,21 @@ class CommentApiHttp
         return $result['id'];
     }
 
-    public function update(): void
+    public function update(Comment $comment): array
     {
-        return;
+        $response = $this->httpClient->request('PUT', $this->commentsServiceHost . '/comment/' . $comment->getId(), [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'name' => $comment->getName(),
+                'text' => $comment->getText(),
+            ],
+        ]);
+
+        return [
+            'statusCode' => $response->getStatusCode(),
+            'content'    => $response->getContent(),
+        ];
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use SplFixedArray;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CommentApiService
 {
@@ -27,5 +28,12 @@ class CommentApiService
     public function addComment(Comment $comment): int
     {
         return $this->apiService->add($comment);
+    }
+
+    public function updateComment(Comment $comment): bool
+    {
+        $result = $this->apiService->update($comment);
+
+        return $result['statusCode'] === JsonResponse::HTTP_NO_CONTENT;
     }
 }

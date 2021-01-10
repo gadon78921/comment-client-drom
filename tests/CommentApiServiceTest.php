@@ -107,4 +107,40 @@ class CommentApiServiceTest  extends KernelTestCase
         $this->expectException(ServerExceptionInterface::class);
         $commentApiService->addComment($newComment);
     }
+
+    public function testUpdateComment()
+    {
+        $this->mockCommentApiService->method('update')->willReturn(
+            [
+                'statusCode' => 204,
+                'content'    => ''
+            ]
+        );
+
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
+
+        $existedComment = new Comment();
+        $existedComment->setId(5);
+        $existedComment->setName('Ivan');
+        $existedComment->setText('Comment_text');
+
+        $result = $commentApiService->updateComment($existedComment);
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateException()
+    {
+        $this->mockCommentApiService->method('update')->willThrowException($this->createMock(ServerExceptionInterface::class));
+
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
+
+        $existedComment = new Comment();
+        $existedComment->setId(5);
+        $existedComment->setName('Ivan');
+        $existedComment->setText('Comment_text');
+
+        $this->expectException(ServerExceptionInterface::class);
+        $commentApiService->updateComment($existedComment);
+    }
 }
