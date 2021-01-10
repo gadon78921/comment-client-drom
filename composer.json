@@ -1,10 +1,12 @@
 {
-    "type": "project",
+    "name": "gadon78921/comment-client-drom",
+    "description": "Client to abstract comment service",
+    "type": "library",
     "license": "proprietary",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "symfony/browser-kit": "5.2.*",
@@ -28,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "CommentClientDrom\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "CommentClientDrom\\Tests\\": "tests/"
         }
     },
     "replace": {

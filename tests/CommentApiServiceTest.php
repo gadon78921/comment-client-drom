@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Tests;
+namespace CommentClientDrom\Tests;
 
-use App\Comment;
-use App\CommentApiHttp;
-use App\CommentApiService;
-use App\CommentMapper;
+use CommentClientDrom\Comment;
+use CommentClientDrom\CommentApiHttp;
+use CommentClientDrom\CommentApiService;
+use CommentClientDrom\CommentMapper;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 

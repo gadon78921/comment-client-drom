@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests;
+namespace CommentClientDrom\Tests;
 
-use App\Comment;
-use App\CommentApiHttp;
+use CommentClientDrom\Comment;
+use CommentClientDrom\CommentApiHttp;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
