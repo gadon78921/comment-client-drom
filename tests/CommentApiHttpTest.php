@@ -4,6 +4,7 @@ namespace CommentClientDrom\Tests;
 
 use CommentClientDrom\Comment;
 use CommentClientDrom\CommentApiHttp;
+use CommentClientDrom\CommentMapper;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -13,28 +14,23 @@ class CommentApiHttpTest extends KernelTestCase
 {
     private const COMMENT_SERVICE_HOST = 'http://example.com';
 
-    protected function setUp(): void
-    {
-        self::bootKernel();
-    }
-
     public function testList()
     {
         $commentsList = [
             [
                 'id'   => 1,
                 'name' => 'Ivan',
-                'test' => 'comment_text_1',
+                'text' => 'comment_text_1',
             ],
             [
                 'id'   => 2,
                 'name' => 'Petr',
-                'test' => 'comment_text_2',
+                'text' => 'comment_text_2',
             ],
             [
                 'id'   => 3,
                 'name' => 'Givi',
-                'test' => 'comment_text_3',
+                'text' => 'comment_text_3',
             ],
         ];
 
@@ -43,10 +39,16 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
-        $response       = $commentApiHttp->list(100, 0);
+        $commentApiHttp     = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
+        $commentsCollection = $commentApiHttp->list(100, 0);
 
-        $this->assertEquals($commentsList, $response);
+        $this->assertEquals(3, $commentsCollection->count());
+        foreach ($commentsCollection as $index => $comment) {
+            /** @var Comment $comment */
+            $this->assertEquals($commentsList[$index]['id'], $comment->getId());
+            $this->assertEquals($commentsList[$index]['name'], $comment->getName());
+            $this->assertEquals($commentsList[$index]['text'], $comment->getText());
+        }
     }
 
     public function testEmptyList()
@@ -58,10 +60,10 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
-        $response       = $commentApiHttp->list(100, 0);
+        $commentApiHttp     = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
+        $commentsCollection = $commentApiHttp->list(100, 0);
 
-        $this->assertEquals($commentsList, $response);
+        $this->assertEquals(0, $commentsCollection->count());
     }
 
     public function testListException()
@@ -73,7 +75,7 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+        $commentApiHttp     = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
 
         $this->expectException(ServerExceptionInterface::class);
         $commentApiHttp->list(100, 0);
@@ -90,7 +92,7 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+        $commentApiHttp = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
         $response       = $commentApiHttp->add($comment);
 
         $this->assertEquals(5, $response);
@@ -107,7 +109,7 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+        $commentApiHttp     = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
 
         $this->expectException(ServerExceptionInterface::class);
         $commentApiHttp->add($comment);
@@ -125,7 +127,7 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+        $commentApiHttp = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
         $response       = $commentApiHttp->update($comment);
 
         $this->assertEquals(204, $response['statusCode']);
@@ -143,7 +145,7 @@ class CommentApiHttpTest extends KernelTestCase
         ];
         $mockHttpClient = new MockHttpClient($mockApiResponse);
 
-        $commentApiHttp = new CommentApiHttp($mockHttpClient, self::COMMENT_SERVICE_HOST);
+        $commentApiHttp = new CommentApiHttp($mockHttpClient, new CommentMapper(), self::COMMENT_SERVICE_HOST);
 
         $this->expectException(ServerExceptionInterface::class);
         $commentApiHttp->update($comment);

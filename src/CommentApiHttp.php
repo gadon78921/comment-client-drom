@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace CommentClientDrom;
 
+use SplFixedArray;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CommentApiHttp
 {
     private HttpClientInterface $httpClient;
-    private string $commentsServiceHost;
+    private CommentMapper       $mapper;
+    private string              $commentsServiceHost;
 
-    public function __construct(HttpClientInterface $httpClient, string $commentsServiceHost)
+    public function __construct(HttpClientInterface $httpClient, CommentMapper $mapper, string $commentsServiceHost)
     {
         $this->httpClient          = $httpClient;
+        $this->mapper              = $mapper;
         $this->commentsServiceHost = $commentsServiceHost;
     }
 
-    public function list(int $limit, int $offset): array
+    public function list(int $limit, int $offset): SplFixedArray
     {
         $response = $this->httpClient->request('GET', $this->commentsServiceHost . '/comments', [
             'query' => [
@@ -26,7 +29,9 @@ class CommentApiHttp
             ],
         ]);
 
-        return $response->toArray();
+        $commentsServiceResponse = $response->toArray();
+
+        return $this->mapper->collectionFromService($commentsServiceResponse);
     }
 
     public function add(Comment $comment): int
