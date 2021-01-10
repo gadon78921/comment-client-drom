@@ -8,19 +8,24 @@ use SplFixedArray;
 
 class CommentApiService
 {
-    private CommentApiHttp $commentApiService;
+    private CommentApiHttp $apiService;
     private CommentMapper  $mapper;
 
-    public function __construct(CommentApiHttp $commentApiService, CommentMapper $mapper)
+    public function __construct(CommentApiHttp $apiService, CommentMapper $mapper)
     {
-        $this->commentApiService = $commentApiService;
-        $this->mapper = $mapper;
+        $this->apiService = $apiService;
+        $this->mapper     = $mapper;
     }
 
     public function list(int $limit = 100, int $offset = 0): SplFixedArray
     {
-        $commentsServiceResponse = $this->commentApiService->list($limit, $offset);
+        $commentsServiceResponse = $this->apiService->list($limit, $offset);
 
         return $this->mapper->collectionFromService($commentsServiceResponse);
+    }
+
+    public function addComment(Comment $comment): int
+    {
+        return $this->apiService->add($comment);
     }
 }

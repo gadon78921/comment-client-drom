@@ -29,9 +29,21 @@ class CommentApiHttp
         return $response->toArray();
     }
 
-    public function add(): int
+    public function add(Comment $comment)
     {
-        return 0;
+        $response = $this->httpClient->request('POST', $this->commentsServiceHost . '/comment', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'name' => $comment->getName(),
+                'text' => $comment->getText(),
+            ],
+        ]);
+
+        $result = $response->toArray();
+
+        return $result['id'];
     }
 
     public function update(): void

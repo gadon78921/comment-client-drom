@@ -11,6 +11,15 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 
 class CommentApiServiceTest  extends KernelTestCase
 {
+    private $mockCommentApiService;
+    private $commentMapper;
+
+    protected function setUp(): void
+    {
+        $this->mockCommentApiService = $this->createMock(CommentApiHttp::class);
+        $this->commentMapper         = new CommentMapper();
+    }
+
     public function testList()
     {
         $commentsServiceResponse = [
@@ -31,11 +40,9 @@ class CommentApiServiceTest  extends KernelTestCase
             ],
         ];
 
-        $commentApiService = $this->createMock(CommentApiHttp::class);
-        $commentApiService->method('list')->willReturn($commentsServiceResponse);
+        $this->mockCommentApiService->method('list')->willReturn($commentsServiceResponse);
 
-        $commentMapper     = new CommentMapper();
-        $commentApiService = new CommentApiService($commentApiService, $commentMapper);
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
 
         $commentsCollection = $commentApiService->list();
 
@@ -52,12 +59,9 @@ class CommentApiServiceTest  extends KernelTestCase
     public function testEmpty()
     {
         $commentsServiceResponse = [];
+        $this->mockCommentApiService->method('list')->willReturn($commentsServiceResponse);
 
-        $commentApiService = $this->createMock(CommentApiHttp::class);
-        $commentApiService->method('list')->willReturn($commentsServiceResponse);
-
-        $commentMapper     = new CommentMapper();
-        $commentApiService = new CommentApiService($commentApiService, $commentMapper);
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
 
         $commentsCollection = $commentApiService->list();
 
@@ -66,13 +70,41 @@ class CommentApiServiceTest  extends KernelTestCase
 
     public function testException()
     {
-        $commentApiService = $this->createMock(CommentApiHttp::class);
-        $commentApiService->method('list')->willThrowException($this->createMock(ServerExceptionInterface::class));
+        $this->mockCommentApiService->method('list')->willThrowException($this->createMock(ServerExceptionInterface::class));
 
-        $commentMapper     = new CommentMapper();
-        $commentApiService = new CommentApiService($commentApiService, $commentMapper);
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
 
         $this->expectException(ServerExceptionInterface::class);
-        $commentsCollection = $commentApiService->list();
+        $commentApiService->list();
+    }
+
+    public function testAddComment()
+    {
+        $expectedNewCommentId = 5;
+        $this->mockCommentApiService->method('add')->willReturn($expectedNewCommentId);
+
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
+
+        $newComment = new Comment();
+        $newComment->setName('Ivan');
+        $newComment->setText('Comment_text');
+
+        $newCommentId = $commentApiService->addComment($newComment);
+
+        $this->assertEquals($expectedNewCommentId, $newCommentId);
+    }
+
+    public function testAddException()
+    {
+        $this->mockCommentApiService->method('add')->willThrowException($this->createMock(ServerExceptionInterface::class));
+
+        $commentApiService = new CommentApiService($this->mockCommentApiService, $this->commentMapper);
+
+        $newComment = new Comment();
+        $newComment->setName('Ivan');
+        $newComment->setText('Comment_text');
+
+        $this->expectException(ServerExceptionInterface::class);
+        $commentApiService->addComment($newComment);
     }
 }
